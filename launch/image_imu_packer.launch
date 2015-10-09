@@ -1,0 +1,16 @@
+<launch>
+ <!-- Node Settings -->
+    <arg name="img_imu_packing_on" default="true"/>
+
+<!-- Pack images and IMU in one package-->
+<node if="$(arg img_imu_packing_on)"
+name="my_image_imu_packer" pkg="img_imu_packer" type="img_imu_packer_node" output="screen">
+	<param name="cam_topicname_left" type="string" value="/mv_25000075/image_raw"/>
+	<param name="cam_topicname_right" type="string" value="/mv_25000060/image_raw"/>
+	<param name="imu_topicname" type="string" value="/mavros/imu/data"/>
+	<param name="package_topicname" type="string" value="/vio_sensor"/>
+</node>
+
+
+
+</launch>
