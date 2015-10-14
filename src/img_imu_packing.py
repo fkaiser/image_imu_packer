@@ -6,8 +6,8 @@ from sensor_msgs.msg import Image
 from vio_ros.msg import VioSensorMsg
 
 tmp=VioSensorMsg()
-in_bag = rosbag.Bag('/newfs/bagfiles/2015-10-09-19-15-30.bag','r')
-out_bag=rosbag.Bag('/newfs/bagfiles/image_imu_packages/vio_bag1.bag','w')
+in_bag = rosbag.Bag('/newfs/bagfiles/2015-09-10-09-29-53.bag','r')
+out_bag=rosbag.Bag('/newfs/bagfiles/image_imu_packages/vio_bag_flying1.bag','w')
 cam_left_topic_name_='/mv_25000075/image_raw'
 cam_right_topic_name_='/mv_25000060/image_raw'
 cam_imu_topic_name_='/mavros/imu/data'
