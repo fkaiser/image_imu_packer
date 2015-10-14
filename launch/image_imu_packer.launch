@@ -2,6 +2,10 @@
  <!-- Node Settings -->
     <arg name="img_imu_packing_on" default="true"/>
 
+ <!-- Run Bagfile -->
+     <node pkg="rosbag" type="play" name="player" output="screen"   
+      args="--clock --pause /newfs/bagfiles/2015-10-09-19-15-30.bag"/>
+
 <!-- Pack images and IMU in one package-->
 <node if="$(arg img_imu_packing_on)"
 name="my_image_imu_packer" pkg="img_imu_packer" type="img_imu_packer_node" output="screen">

@@ -3,7 +3,8 @@
 #include <sstream>
 #include "sensor_msgs/Image.h"
 #include <ros/callback_queue.h>
-// This node sends service request frequently to get image at fixed frequency
+
+// This node packs image and imu data in package such that it can be used later in VIO framework
 
 class ImgIMUPacker{
 
@@ -59,6 +60,7 @@ void publish_Img_IMU_package()
 	img_imu_package_.left_image=img_left_;
 	img_imu_package_.right_image=img_right_;
 	img_imu_package_.imu=imu_;
+	img_imu_package_.header=img_left_.header;
 	publish_ok_=false;
 	img_left_new_=false;
 	img_right_new_=false;
@@ -76,6 +78,25 @@ bool check_publish_package()
 	return publish_ok_;
 }
 
+void check_time_diff()
+{
+	std::cout<<"t_cam_left-t_IMU: "<<img_left_.header.stamp.toSec()-imu_.header.stamp.toSec()<<" s"<<std::endl;
+	std::cout<<"t_cam_left-t_cam_right: "<<img_left_.header.stamp.toSec()-img_right_.header.stamp.toSec()<<" s"<<std::endl;
+	}
+
+void check_time_diff_frames()
+{
+	std::cout<<"cam_left dt: "<<cam_left_Header_.stamp.toSec()-img_left_.header.stamp.toSec()<<" s"<<std::endl;
+	std::cout<<"cam_right dt: "<<cam_right_Header_.stamp.toSec()-img_right_.header.stamp.toSec()<<" s"<<std::endl;
+	std::cout<<"IMU dt: "<<IMU_Header_.stamp.toSec()-imu_.header.stamp.toSec()<<" s"<<std::endl;
+
+	}
+void save_current_headers()
+{
+	cam_left_Header_=img_left_.header;
+	cam_right_Header_=img_right_.header;
+	IMU_Header_=imu_.header;
+}
 private:
 	ros::NodeHandle n_;
 	ros::Publisher img_pub_;
@@ -96,6 +117,9 @@ private:
 	bool img_right_new_;
 	bool imu_new_;
 	bool publish_ok_;
+	std_msgs::Header cam_left_Header_;
+	std_msgs::Header cam_right_Header_;
+	std_msgs::Header IMU_Header_;
 
 };
 
@@ -109,6 +133,9 @@ int main(int argc, char **argv)
 		ros::spinOnce();
 		if (img_imu_packing_point.check_publish_package()){
 			img_imu_packing_point.publish_Img_IMU_package();
+			img_imu_packing_point.check_time_diff_frames();
+			//img_imu_packing_point.check_time_diff();
+			img_imu_packing_point.save_current_headers();
 		}
 		R.sleep();
 	}
