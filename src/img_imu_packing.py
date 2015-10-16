@@ -55,31 +55,64 @@ if __name__ == '__main__':
 	cam_right_arrived_ = 0
 	imu_arrived_ = 0
 	temp_t = 0
+	t1 = 0
+	max_t = 0
+	diff_t = 0
+	bag_list=in_bag.read_messages(topics=[imu_topic_name_, cam_left_topic_name_, cam_right_topic_name_])
+	i_iter=0;
+	counter_dropout=0
+	counter_dropout_img=0
+	counter_image=0
+	dt_tresh=0.0405
+	for topic, msg, t in bag_list:
+	
+		# Check whether left camera image has arrived	
+		if topic == cam_left_topic_name_:
+			tmp.left_image = msg
+			cam_left_arrived_ = 1
+			tmp.header = tmp.left_image.header
+			temp_t = t
+			counter_image=counter_image+1
+			if i_iter==0:
+				t2=temp_t.to_sec()	
+			diff_t_i_left = temp_t.to_sec() - t2
+			if diff_t_i_left>=0.075:
+				counter_dropout_img=counter_dropout_img+(diff_t_i_left-(diff_t_i_left%dt_tresh))/dt_tresh
+				print(counter_dropout_img)
+			t2=temp_t.to_sec()
+			i_iter=i_iter+1
+		# Check whether right camera image has arrived	
+		if topic == cam_right_topic_name_:
+			tmp.right_image = msg
+			cam_right_arrived_ = 1
+		# Check whether IMU data has arrived	
+		if topic == imu_topic_name_:
+			tmp.imu = msg
+			imu_arrived_ = 1
 
-
-for topic, msg, t in in_bag.read_messages(topics=[imu_topic_name_, cam_left_topic_name_, cam_right_topic_name_]):
-	# Check whether left camera image has arrived	
-	if topic == cam_left_topic_name_:
-		tmp.left_image = msg
-		cam_left_arrived_ = 1
-		tmp.header = tmp.left_image.header
-		temp_t = t
-	# Check whether right camera image has arrived	
-	if topic == cam_right_topic_name_:
-		tmp.right_image = msg
-		cam_right_arrived_ = 1
-	# Check whether IMU data has arrived	
-	if topic == imu_topic_name_:
-		tmp.imu = msg
-		imu_arrived_ = 1
-
-	# Check whether image and IMU data is available 
-	if  imu_arrived_ and cam_right_arrived_ and cam_left_arrived_:
-		out_bag.write(vio_topic_name_, tmp, temp_t)
-		imu_arrived_ = 0
-		cam_left_arrived_ = 0
-		cam_right_arrived_ = 0
-		
-
-in_bag.close()
-out_bag.close()
+		# Check whether image and IMU data is available 
+		if  imu_arrived_ and cam_right_arrived_ and cam_left_arrived_:
+			temp_t.set(tmp.left_image.header.stamp.secs,tmp.left_image.header.stamp.nsecs)
+			out_bag.write(vio_topic_name_, tmp, temp_t)
+			imu_arrived_ = 0
+			cam_left_arrived_ = 0
+			cam_right_arrived_ = 0
+			if i_iter==0:
+				t1=temp_t.to_sec()
+			
+			diff_t = temp_t.to_sec() - t1
+# 			print(diff_t)
+			t1 = temp_t.to_sec()
+			counter_dropout=counter_dropout+(diff_t-(diff_t%dt_tresh))/dt_tresh
+			if diff_t>dt_tresh:
+				max_t=diff_t
+#				print(counter_dropout)
+#				print(max_t)
+				
+			
+	print(counter_image)	
+	print(counter_dropout)
+	print(counter_dropout_img)
+	print(i_iter-1)
+	in_bag.close()
+	out_bag.close()

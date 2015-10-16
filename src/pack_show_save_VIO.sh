@@ -8,8 +8,8 @@ CSV_filename_="/newfs/bagfiles/output_VIO/${bagname_}_VIO_output.csv"
 Vio_bag_rate_=0.2
 Secs_in_bag_=12
 
-vio_inpute_pack=0
-run_vio=1
+vio_inpute_pack=1
+run_vio=0
 record_vio=0
 transfer_to_csv=0
 kill_nodes=0
