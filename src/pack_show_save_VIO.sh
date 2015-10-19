@@ -1,18 +1,18 @@
 #!/bin/bash
-
+#bagnames=2015-08-29-12-32-32(along street), 2015-08-29-12-39-59,2015-10-09-19-15-30(indoor)
 bagname_=2015-08-29-12-32-32
 input_bagfile_="/newfs/bagfiles/${bagname_}.bag"
 VIO_inputdata_bagfile_="/newfs/bagfiles/image_imu_packages/${bagname_}_VIO_input.bag"
 VIO_outputdata_bagfile_="/newfs/bagfiles/output_VIO/${bagname_}_VIO_output.bag"
 CSV_filename_="/newfs/bagfiles/output_VIO/${bagname_}_VIO_output.csv"
-Vio_bag_rate_=0.2
-Secs_in_bag_=12
+Vio_bag_rate_=0.6
+Secs_in_bag_=30
 
-vio_inpute_pack=1
-run_vio=0
+vio_inpute_pack=0
+run_vio=1
 record_vio=0
 transfer_to_csv=0
-kill_nodes=0
+kill_nodes=1
 
 
 
