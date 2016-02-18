@@ -218,31 +218,26 @@ if __name__ == '__main__':
 		iter_indx=iter_indx+1	
 		# Set one message
 		out_bag.write(vio_topic_name_,deepcopy(tmp),deepcopy(current_time))
-
-		t_new=0.5*(image_left_time_list_sorted[i+1]+image_left_time_list_sorted[i])
-		t_new_sec=int(t_new)
- 		t_new_nsec=int((t_new-t_new_sec)*1e9)
- 		current_time.set(t_new_sec,t_new_nsec)
- 		current_time=deepcopy(current_time)
- 		t_msg_now=t_new
- 		if iter_indx>0:
- 			t_msg.append(t_msg_now-t_msg_pre)
- 		t_msg_pre=t_msg_now
- 		iter_indx=iter_indx+1
- 		tmp=VioSensorMsg()
- 		current_time=deepcopy(current_time)
- 		tmp.imu=imu_interpokilate(t_new,imu_data_list_sorted,imu_time_list_sorted)
- 		tmp.header.stamp.secs=t_new_sec
- 		tmp.header.stamp.nsecs=t_new_nsec
- 		tmp.imu.header.stamp=tmp.header.stamp
- 		
- 		tmp.imu.header.stamp=deepcopy(tmp.header.stamp)
- 		# Set one message
- 		
- 		if t_msg[iter_indx-2]<0.045:
-  			out_bag.write(vio_topic_name_,deepcopy(tmp),deepcopy(current_time))
-  		else:
-  			print('Dropped IMU message')
+		# Save Imu data message that lie in between two images messages
+		index_closest_left=np.argmin([abs(x-image_left_time_list_sorted[i]) for x in imu_time_list_sorted])
+		if imu_time_list_sorted[index_closest_left]-image_left_time_list_sorted[i]<0 and index_closest_left<len(imu_time_list_sorted):
+			index_closest_left=index_closest_left+1
+		index_closest_right=np.argmin([abs(x-image_left_time_list_sorted[i+1]) for x in imu_time_list_sorted])
+		if imu_time_list_sorted[index_closest_right]-image_left_time_list_sorted[i+1]>0 and index_closest_right>0:
+			index_closest_right=index_closest_right-1
+		
+		for index_imu_pub in (index_closest_right,index_closest_right+1):
+			t_new=imu_time_list_sorted[index_imu_pub]
+			t_new_sec=int(t_new)
+ 			t_new_nsec=int((t_new-t_new_sec)*1e9)
+ 			current_time.set(t_new_sec,t_new_nsec)
+ 			current_time=deepcopy(current_time)
+			tmp=VioSensorMsg()
+			tmp.imu=imu_data_list_sorted[index_imu_pub]
+			tmp.header.stamp.secs=t_new_sec
+ 			tmp.header.stamp.nsecs=t_new_nsec
+ 			tmp.imu.header.stamp=deepcopy(tmp.header.stamp)
+ 			out_bag.write(vio_topic_name_,deepcopy(tmp),deepcopy(current_time))
   			
   			
 
